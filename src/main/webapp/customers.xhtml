@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://xmlns.jcp.org/jsf/html https://jakarta.ee/xml/ns/jakartaee/jsf-html_3_0.xsd
+                          http://xmlns.jcp.org/jsf/core https://jakarta.ee/xml/ns/jakartaee/jsf-core_3_0.xsd
+                          http://xmlns.jcp.org/jsf/facelets https://jakarta.ee/xml/ns/jakartaee/jsf-facelets_3_0.xsd
+                          http://primefaces.org/ui https://primefaces.org/ui/schema/primefaces_13_0.xsd">
+
+<ui:composition template="/WEB-INF/template/template.xhtml">
+    <ui:define name="content">
+        <h:form id="customerForm">
+            <p:growl id="messages" showDetail="true"/>
+
+            <div class="table-header">
+                <p:inputText value="#{clienteController.searchTerm}" placeholder="Search customers...">
+                    <p:ajax event="keyup" listener="#{clienteController.searchClientes()}" update="customersTable"/>
+                </p:inputText>
+                <p:commandButton value="New Customer" icon="pi pi-plus"
+                                 actionListener="#{clienteController.prepareNewCliente()}"
+                                 onclick="PF('customerDialog').show()"
+                                 update=":customerDialog"/>
+            </div>
+
+            <p:dataTable id="customersTable" value="#{clienteController.clientes}" var="customer"
+                         emptyMessage="No customers found" paginator="true" rows="10">
+                <p:column headerText="ID">
+                    <h:outputText value="#{customer.id}"/>
+                </p:column>
+
+                <p:column headerText="Name">
+                    <h:outputText value="#{customer.nombre}"/>
+                </p:column>
+
+                <p:column headerText="Last Name">
+                    <h:outputText value="#{customer.apellido}"/>
+                </p:column>
+
+                <p:column headerText="Email">
+                    <h:outputText value="#{customer.email}"/>
+                </p:column>
+
+                <p:column headerText="Phone">
+                    <h:outputText value="#{customer.telefono}"/>
+                </p:column>
+
+                <p:column headerText="Actions" style="width:100px;text-align: center">
+                    <p:commandButton icon="pi pi-pencil" update=":customerDialog"
+                                     oncomplete="PF('customerDialog').show()"
+                                     styleClass="edit-button rounded-button ui-button-success"
+                                     process="@this">
+                        <f:setPropertyActionListener value="#{customer}"
+                                                     target="#{clienteController.selectedCliente}"/>
+                    </p:commandButton>
+                    <p:commandButton icon="pi pi-trash"
+                                     actionListener="#{clienteController.deleteCliente(customer.id)}"
+                                     styleClass="ui-button-danger rounded-button"
+                                     update="customersTable messages">
+                        <p:confirm header="Confirmation"
+                                   message="Delete this customer?"
+                                   icon="pi pi-exclamation-triangle"/>
+                    </p:commandButton>
+                </p:column>
+            </p:dataTable>
+        </h:form>
+
+        <p:dialog header="Customer Details" widgetVar="customerDialog" modal="true"
+                  showEffect="fade" hideEffect="fade" responsive="true">
+            <h:form id="customerDialogForm">
+                <div class="form-group">
+                    <p:outputLabel for="name" value="Name"/>
+                    <p:inputText id="name" value="#{clienteController.selectedCliente.nombre}" required="true"/>
+                </div>
+
+                <div class="form-group">
+                    <p:outputLabel for="lastName" value="Last Name"/>
+                    <p:inputText id="lastName" value="#{clienteController.selectedCliente.apellido}" required="true"/>
+                </div>
+
+                <div class="form-group">
+                    <p:outputLabel for="email" value="Email"/>
+                    <p:inputText id="email" value="#{clienteController.selectedCliente.email}" required="true"/>
+                </div>
+
+                <div class="form-group">
+                    <p:outputLabel for="phone" value="Phone"/>
+                    <p:inputText id="phone" value="#{clienteController.selectedCliente.telefono}"/>
+                </div>
+
+                <f:facet name="footer">
+                    <p:commandButton value="Save" icon="pi pi-check"
+                                     actionListener="#{clienteController.saveCliente()}"
+                                     update=":customerForm:customersTable :customerForm:messages"
+                                     oncomplete="PF('customerDialog').hide()"/>
+                    <p:commandButton value="Cancel" icon="pi pi-times"
+                                     onclick="PF('customerDialog').hide()" immediate="true"/>
+                </f:facet>
+            </h:form>
+        </p:dialog>
+
+        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="pi pi-times"/>
+        </p:confirmDialog>
+    </ui:define>
+</ui:composition>
+</html>

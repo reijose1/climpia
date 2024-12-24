@@ -1,0 +1,24 @@
+# Connect to running server
+connect
+
+# Add MySQL module
+module add --name=com.mysql --resources=/path/to/mysql-connector-j-8.2.0.jar --dependencies=javax.api,javax.transaction.api
+
+# Add MySQL driver
+/subsystem=datasources/jdbc-driver=mysql:add(driver-name=mysql,driver-module-name=com.mysql,driver-class-name=com.mysql.cj.jdbc.Driver)
+
+# Add datasource
+data-source add \
+    --name=SalesDS \
+    --jndi-name=java:/SalesDS \
+    --driver-name=mysql \
+    --connection-url=jdbc:mysql://localhost:3306/ventasclimpia \
+    --user-name=reijo \
+    --password=reijo \
+    --min-pool-size=5 \
+    --max-pool-size=20 \
+    --blocking-timeout-wait-millis=5000 \
+    --enabled=true
+
+# Reload the server configuration
+reload
